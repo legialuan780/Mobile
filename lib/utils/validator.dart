@@ -35,4 +35,11 @@ class Validators {
 
     return null;
   }
+
+  static String? validateFullName(String? value){
+    if (value == null || value.isEmpty){
+      return 'Họ tên không được để trống';
+    }
+    return null;
+  }
 }
