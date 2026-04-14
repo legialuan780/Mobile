@@ -18,6 +18,7 @@ class _RegisterViewState extends State<RegisterView> {
   final _authService = AuthService();
 
   final _nameController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -27,8 +28,10 @@ class _RegisterViewState extends State<RegisterView> {
   @override
   void dispose() {
     _nameController.dispose();
+    _usernameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -40,7 +43,8 @@ class _RegisterViewState extends State<RegisterView> {
 
     try {
       await _authService.register(
-        // name: _nameController.text.trim(),
+        name: _nameController.text.trim(),
+        username: _usernameController.text.trim(),
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
@@ -124,13 +128,26 @@ class _RegisterViewState extends State<RegisterView> {
 
                     Form(
                       key: _formKey,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                       child: Column(
                         children: [
                           AuthTextField(
                             controller: _nameController,
                             hint: 'Họ và tên',
                             icon: Icons.badge_outlined,
-                            validator: Validators.validateFullName,
+                            validator: (val) =>
+                            val != null && val.isEmpty
+                                ? 'Vui lòng nhập họ tên'
+                                : null,
+                          ),
+
+                          SizedBox(height: 16,),
+
+                          AuthTextField(
+                            controller: _usernameController,
+                            hint: 'Tên đăng nhập',
+                            icon: Icons.person_outline,
+                            validator: Validators.validateUsername,
                           ),
 
                           SizedBox(height: 16,),
@@ -147,7 +164,8 @@ class _RegisterViewState extends State<RegisterView> {
                           AuthTextField(
                             controller: _passwordController,
                             hint: 'Mật khẩu',
-                            icon: Icons.password,
+                            icon: Icons.lock_outline,
+                            isPassword: true,
                             validator: Validators.validatePassword,
                           ),
 
@@ -156,8 +174,9 @@ class _RegisterViewState extends State<RegisterView> {
                           AuthTextField(
                             controller: _confirmPasswordController,
                             hint: 'Nhập lại mật khẩu',
-                            icon: Icons.password,
-                            validator: Validators.validatePassword,
+                            icon: Icons.lock_outline,
+                            isPassword: true,
+                            validator: (val) => Validators.validateConfirmPassword(val, _passwordController.text),
                           ),
 
                           SizedBox(height: 24,),

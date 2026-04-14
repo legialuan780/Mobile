@@ -29,10 +29,12 @@ class _AuthTextFieldState extends State<AuthTextField> {
       controller: widget.controller,
       obscureText: widget.isPassword ? _obscureText : false,
       validator: widget.validator,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       style: const TextStyle(color: Color(0xFF1E293B), fontSize: 16),
       decoration: InputDecoration(
-        hintText: widget.hint,
-        hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
+        labelText: widget.hint,
+        labelStyle: const TextStyle(color: Color(0xFF94A3B8)),
+        floatingLabelBehavior: FloatingLabelBehavior.auto,
         prefixIcon: Icon(widget.icon, color: const Color(0xFF94A3B8)),
         suffixIcon: widget.isPassword
             ? IconButton(
@@ -45,18 +47,24 @@ class _AuthTextFieldState extends State<AuthTextField> {
             : null,
         filled: true,
         fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 16,
+          horizontal:16,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+          gapPadding: 0,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+          gapPadding: 0,
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Color(0xFF0062FF), width: 1.5),
+          gapPadding: 0,
         ),
         errorStyle: const TextStyle(color: Color(0xFFEF4444)),
       ),

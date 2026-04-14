@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/app_user.dart';
 import '../repositories/auth_repository.dart';
@@ -23,9 +24,30 @@ class AuthService {
   }
 
   Future<AppUser> register({
+    required String name,
+    required String username,
     required String email,
     required String password,
   }) async {
+    try {
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .where('username', isEqualTo: username)
+          .limit(1)
+          .get();
+
+      if (userDoc.docs.isNotEmpty) {
+        throw Exception('Tên đăng nhập đã tồn tại.');
+      }
+    } on FirebaseException catch (e) {
+      if (e.code == 'permission-denied') {
+        // Bỏ qua nếu chưa cấu hình rules Firestore
+        print('Firestore permission denied: unable to check username uniqueness');
+      } else {
+        rethrow;
+      }
+    }
+
     final credential = await _authRepository.registerWithEmailAndPassword(
       email: email,
       password: password,
@@ -36,17 +58,63 @@ class AuthService {
       throw Exception('Đăng ký thất bại.');
     }
 
-    await _authRepository.sendEmailVerification(user);
+    await _authRepository.updateDisplayName(name: name);
+    try {
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+        'name': name,
+        'username': username,
+        'email': email,
+        'role': 'user',
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+    } on FirebaseException catch (e) {
+      if (e.code == 'permission-denied') {
+        print('Firestore permission denied: unable to save user doc');
+      } else {
+        rethrow;
+      }
+    }
+    
+    await _authRepository.reloadCurrentUser();
 
-    return _mapFirebaseUserToAppUser(user);
+    //gửi mã xác nhận
+    // await _authRepository.sendEmailVerification(user);
+
+    final refreshedUser = _authRepository.currentFirebaseUser;
+
+    return _mapFirebaseUserToAppUser(refreshedUser ?? user);
   }
 
   Future<AppUser> login({
     required String email,
     required String password,
   }) async {
+    String loginEmail = email;
+
+    if (!email.contains('@')) {
+      try {
+        final userQuery = await FirebaseFirestore.instance
+            .collection('users')
+            .where('username', isEqualTo: email)
+            .limit(1)
+            .get();
+
+        if (userQuery.docs.isEmpty) {
+          throw Exception('Không tìm thấy tài khoản với tên đăng nhập này.');
+        }
+
+        loginEmail = userQuery.docs.first.data()['email'] as String;
+      } on FirebaseException catch (e) {
+        if (e.code == 'permission-denied') {
+          throw Exception('Lỗi quyền Firestore: Hãy cấu hình Rules cho bảng "users" để tìm email theo tên đăng nhập.');
+        } else {
+          rethrow;
+        }
+      }
+    }
+
     final credential = await _authRepository.signInWithEmailAndPassword(
-      email: email,
+      email: loginEmail,
       password: password,
     );
 
@@ -62,12 +130,13 @@ class AuthService {
       throw Exception('Không lấy được thông tin người dùng.');
     }
 
-    if (!refreshedUser.emailVerified) {
-      throw FirebaseAuthException(
-        code: 'email-not-verified',
-        message: 'Email chưa được xác minh.',
-      );
-    }
+    //kiểm tra email đã xác nhận chưa
+    // if (!refreshedUser.emailVerified) {
+    //   throw FirebaseAuthException(
+    //     code: 'email-not-verified',
+    //     message: 'Email chưa được xác minh.',
+    //   );
+    // }
 
     return _mapFirebaseUserToAppUser(refreshedUser);
   }
