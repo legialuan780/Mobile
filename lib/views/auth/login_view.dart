@@ -1,5 +1,5 @@
-import 'package:Mobile/services/auth_service.dart';
-import 'package:Mobile/utils/validator.dart';
+import 'package:Mobile/data/repositories/auth_repository.dart';
+import 'package:Mobile/utils/validators.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../app/route_names.dart';
@@ -17,7 +17,7 @@ class LoginView extends StatefulWidget {
 
 class _LoginViewState extends State<LoginView> {
   final _formKey = GlobalKey<FormState>();
-  final _authService = AuthService();
+  final _authRepository = AuthRepository();
 
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -37,7 +37,7 @@ class _LoginViewState extends State<LoginView> {
     setState(() => _isLoading = true);
 
     try {
-      final user = await _authService.login(
+      final user = await _authRepository.login(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
@@ -68,7 +68,7 @@ class _LoginViewState extends State<LoginView> {
     setState(() => _isLoading = true);
 
     try {
-      await _authService.loginWithGoogle();
+      await _authRepository.loginWithGoogle();
       if (!mounted) return;
       Navigator.pushReplacementNamed(context, RouteNames.home);
     } on FirebaseAuthException catch (e) {
