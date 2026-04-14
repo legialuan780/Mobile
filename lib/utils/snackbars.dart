@@ -4,8 +4,8 @@ class AppSnackbars {
   static void showSuccess(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.greenAccent,
+        content: Text(message, style: TextStyle(color: Colors.black),),
+        backgroundColor: Colors.lightGreen,
         behavior: SnackBarBehavior.floating,
       ),
     );

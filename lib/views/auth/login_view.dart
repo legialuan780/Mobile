@@ -44,13 +44,13 @@ class _LoginViewState extends State<LoginView> {
 
       if (!mounted) return;
 
-      if (!user.emailVerified) {
-        AppSnackbars.showError(
-          context,
-          'Email chưa được xác minh. Vui lòng kiểm tra email.',
-        );
-        return;
-      }
+      // if (!user.emailVerified) {
+      //   AppSnackbars.showError(
+      //     context,
+      //     'Email chưa được xác minh. Vui lòng kiểm tra email.',
+      //   );
+      //   return;
+      // }
 
       Navigator.pushReplacementNamed(context, RouteNames.home);
     } on FirebaseAuthException catch (e) {
@@ -154,7 +154,7 @@ class _LoginViewState extends State<LoginView> {
                           controller: _emailController,
                           hint: 'Tên đăng nhập hoặc Email',
                           icon: Icons.person_outline,
-                          validator: Validators.validateEmail,
+                          validator: Validators.validateEmailOrUsername,
                         ),
                         const SizedBox(height: 16),
                         AuthTextField(
