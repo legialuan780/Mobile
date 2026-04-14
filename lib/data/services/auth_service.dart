@@ -1,11 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-class AuthRepository {
+class AuthService {
   final FirebaseAuth _firebaseAuth;
   final GoogleSignIn _googleSignIn;
 
-  AuthRepository({
+  AuthService({
     FirebaseAuth? firebaseAuth,
     GoogleSignIn? googleSignIn,
   })  : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
@@ -38,8 +38,12 @@ class AuthRepository {
   Future<UserCredential> signInWithGoogle() async {
     await _googleSignIn.initialize();
 
-    final GoogleSignInAccount googleUser = await _googleSignIn.authenticate();
-    final GoogleSignInAuthentication googleAuth = googleUser.authentication;
+    final GoogleSignInAccount? googleUser = await _googleSignIn.authenticate();
+    if (googleUser == null) {
+      throw Exception('Đăng nhập Google đã bị hủy.');
+    }
+    
+    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
     final credential = GoogleAuthProvider.credential(
       idToken: googleAuth.idToken,
@@ -74,6 +78,13 @@ class AuthRepository {
     }
 
     await user.updatePassword(newPassword);
+  }
+
+  Future<void> updateDisplayName({required String name}) async {
+    final user = _firebaseAuth.currentUser;
+    if (user != null) {
+      await user.updateDisplayName(name);
+    }
   }
 
   Future<void> signOut() async {

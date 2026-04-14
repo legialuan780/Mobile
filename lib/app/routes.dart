@@ -12,8 +12,8 @@ class Routes{
         return MaterialPageRoute(builder: (_) => const LoginView());
       case RouteNames.register:
         return MaterialPageRoute(builder: (_) => const RegisterView());
-      // case RouteNames.forgotPassword:
-        // return MaterialPageRoute(builder: (_) => const ForgotPasswordView());
+      case RouteNames.forgotPassword:
+        return MaterialPageRoute(builder: (_) => const ForgotPasswordView());
       case RouteNames.home:
         return MaterialPageRoute(builder: (_) => const HomeView());
       default:

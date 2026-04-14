@@ -1,4 +1,4 @@
-import 'package:Mobile/services/auth_service.dart';
+import 'package:Mobile/data/repositories/auth_repository.dart';
 import 'package:flutter/material.dart';
 import '../../app/route_names.dart';
 
@@ -7,7 +7,7 @@ class HomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authService = AuthService();
+    final authRepository = AuthRepository();
 
     return Scaffold(
       appBar: AppBar(
@@ -15,7 +15,7 @@ class HomeView extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () async {
-              await authService.logout();
+              await authRepository.logout();
               if (context.mounted) {
                 Navigator.pushNamedAndRemoveUntil(
                   context,
