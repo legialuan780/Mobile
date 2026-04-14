@@ -1,6 +1,6 @@
-import 'package:Mobile/services/auth_service.dart';
+import 'package:Mobile/data/repositories/auth_repository.dart';
 import 'package:Mobile/utils/snackbars.dart';
-import 'package:Mobile/utils/validator.dart';
+import 'package:Mobile/utils/validators.dart';
 import 'package:Mobile/widgets/auth/auth_primary_button.dart';
 import 'package:Mobile/widgets/auth/auth_text_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -15,7 +15,7 @@ class ForgotPasswordView extends StatefulWidget{
 
 class _ForgotPasswordViewState extends State<ForgotPasswordView>{
   final _formKey = GlobalKey<FormState>();
-  final _authService = AuthService();
+  final _authRepository = AuthRepository();
   final _emailController = TextEditingController();
 
   bool _isLoading = false;
@@ -32,7 +32,7 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView>{
     setState(() => _isLoading = true);
 
     try{
-      await _authService.forgotPassword(email: _emailController.text.trim());
+      await _authRepository.forgotPassword(email: _emailController.text.trim());
 
       if (!mounted) return;
 

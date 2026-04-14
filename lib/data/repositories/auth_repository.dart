@@ -1,23 +1,23 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/app_user.dart';
-import '../repositories/auth_repository.dart';
+import '../services/auth_service.dart';
 
-class AuthService {
-  final AuthRepository _authRepository;
+class AuthRepository {
+  final AuthService _authService;
 
-  AuthService({
-    AuthRepository? authRepository,
-  }) : _authRepository = authRepository ?? AuthRepository();
+  AuthRepository({
+    AuthService? authService,
+  }) : _authService = authService ?? AuthService();
 
   AppUser? get currentUser {
-    final user = _authRepository.currentFirebaseUser;
+    final user = _authService.currentFirebaseUser;
     if (user == null) return null;
     return _mapFirebaseUserToAppUser(user);
   }
 
   Stream<AppUser?> get authStateChanges {
-    return _authRepository.authStateChanges.map((user) {
+    return _authService.authStateChanges.map((user) {
       if (user == null) return null;
       return _mapFirebaseUserToAppUser(user);
     });
@@ -48,7 +48,7 @@ class AuthService {
       }
     }
 
-    final credential = await _authRepository.registerWithEmailAndPassword(
+    final credential = await _authService.registerWithEmailAndPassword(
       email: email,
       password: password,
     );
@@ -58,7 +58,7 @@ class AuthService {
       throw Exception('Đăng ký thất bại.');
     }
 
-    await _authRepository.updateDisplayName(name: name);
+    await _authService.updateDisplayName(name: name);
     try {
       await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
         'name': name,
@@ -75,12 +75,12 @@ class AuthService {
       }
     }
     
-    await _authRepository.reloadCurrentUser();
+    await _authService.reloadCurrentUser();
 
     //gửi mã xác nhận
-    // await _authRepository.sendEmailVerification(user);
+    // await _authService.sendEmailVerification(user);
 
-    final refreshedUser = _authRepository.currentFirebaseUser;
+    final refreshedUser = _authService.currentFirebaseUser;
 
     return _mapFirebaseUserToAppUser(refreshedUser ?? user);
   }
@@ -113,7 +113,7 @@ class AuthService {
       }
     }
 
-    final credential = await _authRepository.signInWithEmailAndPassword(
+    final credential = await _authService.signInWithEmailAndPassword(
       email: loginEmail,
       password: password,
     );
@@ -123,9 +123,9 @@ class AuthService {
       throw Exception('Đăng nhập thất bại.');
     }
 
-    await _authRepository.reloadCurrentUser();
+    await _authService.reloadCurrentUser();
 
-    final refreshedUser = _authRepository.currentFirebaseUser;
+    final refreshedUser = _authService.currentFirebaseUser;
     if (refreshedUser == null) {
       throw Exception('Không lấy được thông tin người dùng.');
     }
@@ -142,7 +142,7 @@ class AuthService {
   }
 
   Future<AppUser> loginWithGoogle() async {
-    final credential = await _authRepository.signInWithGoogle();
+    final credential = await _authService.signInWithGoogle();
 
     final user = credential.user;
     if (user == null) {
@@ -155,11 +155,11 @@ class AuthService {
   Future<void> forgotPassword({
     required String email,
   }) {
-    return _authRepository.sendPasswordResetEmail(email: email);
+    return _authService.sendPasswordResetEmail(email: email);
   }
 
   Future<void> resendVerificationEmail() async {
-    final user = _authRepository.currentFirebaseUser;
+    final user = _authService.currentFirebaseUser;
 
     if (user == null) {
       throw FirebaseAuthException(
@@ -175,17 +175,17 @@ class AuthService {
       );
     }
 
-    await _authRepository.sendEmailVerification(user);
+    await _authService.sendEmailVerification(user);
   }
 
   Future<void> changePassword({
     required String newPassword,
   }) {
-    return _authRepository.updatePassword(newPassword: newPassword);
+    return _authService.updatePassword(newPassword: newPassword);
   }
 
   Future<void> logout() {
-    return _authRepository.signOut();
+    return _authService.signOut();
   }
 
   AppUser _mapFirebaseUserToAppUser(User user) {

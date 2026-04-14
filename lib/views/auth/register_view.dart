@@ -1,7 +1,7 @@
 import 'package:Mobile/app/route_names.dart';
-import 'package:Mobile/services/auth_service.dart';
+import 'package:Mobile/data/repositories/auth_repository.dart';
 import 'package:Mobile/utils/snackbars.dart';
-import 'package:Mobile/utils/validator.dart';
+import 'package:Mobile/utils/validators.dart';
 import 'package:Mobile/widgets/auth/auth_primary_button.dart';
 import 'package:Mobile/widgets/auth/auth_text_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -15,7 +15,7 @@ class RegisterView extends StatefulWidget {
 
 class _RegisterViewState extends State<RegisterView> {
   final _formKey = GlobalKey<FormState>();
-  final _authService = AuthService();
+  final _authRepository = AuthRepository();
 
   final _nameController = TextEditingController();
   final _usernameController = TextEditingController();
@@ -42,7 +42,7 @@ class _RegisterViewState extends State<RegisterView> {
     setState(() => _isLoading = true);
 
     try {
-      await _authService.register(
+      await _authRepository.register(
         name: _nameController.text.trim(),
         username: _usernameController.text.trim(),
         email: _emailController.text.trim(),
@@ -135,10 +135,7 @@ class _RegisterViewState extends State<RegisterView> {
                             controller: _nameController,
                             hint: 'Họ và tên',
                             icon: Icons.badge_outlined,
-                            validator: (val) =>
-                            val != null && val.isEmpty
-                                ? 'Vui lòng nhập họ tên'
-                                : null,
+                            validator: Validators.validateFullName,
                           ),
 
                           SizedBox(height: 16,),
