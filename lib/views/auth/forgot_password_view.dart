@@ -5,15 +5,16 @@ import 'package:Mobile/widgets/auth/auth_primary_button.dart';
 import 'package:Mobile/widgets/auth/auth_text_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../../utils/app_language.dart';
 
-class ForgotPasswordView extends StatefulWidget{
+class ForgotPasswordView extends StatefulWidget {
   const ForgotPasswordView({super.key});
 
   @override
   State<ForgotPasswordView> createState() => _ForgotPasswordViewState();
 }
 
-class _ForgotPasswordViewState extends State<ForgotPasswordView>{
+class _ForgotPasswordViewState extends State<ForgotPasswordView> {
   final _formKey = GlobalKey<FormState>();
   final _authRepository = AuthRepository();
   final _emailController = TextEditingController();
@@ -26,21 +27,22 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView>{
     super.dispose();
   }
 
-  Future<void> _forgotPassword() async{
-    if (!_formKey.currentState!.validate()) return ;
+  Future<void> _forgotPassword() async {
+    if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
 
-    try{
+    try {
       await _authRepository.forgotPassword(email: _emailController.text.trim());
 
       if (!mounted) return;
 
+      final appLanguge = AppLanguge.of(context)!;
       AppSnackbars.showSuccess(context, 'Email lấy lại mật khẩu đã gửi. Vui lòng kiểm tra hộp thư.');
 
       Navigator.pop(context);
-    } on FirebaseAuthException catch (e){
-      if (!mounted) return ;
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
       AppSnackbars.showError(context, e.message ?? 'Đã có lỗi xảy ra.');
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -49,26 +51,28 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView>{
 
   @override
   Widget build(BuildContext context) {
+    final appLanguge = AppLanguge.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        // leading: IconButton(
-        //     onPressed: () => Navigator.pop(context),
-        //     icon: Icon(Icons.arrow_back_ios, color: Colors.black45,),
-        // ),
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: Icon(Icons.arrow_back_ios, color: colorScheme.onSurface),
+        ),
       ),
-
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24),
+              padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
-                children:[
+                children: [
                   Container(
                     height: 120,
                     width: double.infinity,
@@ -76,74 +80,60 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView>{
                     child: Icon(
                       Icons.lock_reset_outlined,
                       size: 80,
-                      color: Colors.blueAccent,
+                      color: colorScheme.primary,
                     ),
                   ),
-
-                  SizedBox(height: 24,),
-
+                  const SizedBox(height: 24),
                   Text(
-                    'Quên mật khẩu?',
+                    appLanguge.get('forgotPasswordTitle'),
                     style: TextStyle(
-                      fontSize:28,
+                      fontSize: 28,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                      color: colorScheme.onSurface,
                     ),
                   ),
-
-                  SizedBox(height: 8,),
-
+                  const SizedBox(height: 8),
                   Text(
-                    'Hãy nhập email liên kết với tài khoản của bạn để nhận liên kết đặt lại mật khẩu.',
+                    appLanguge.get('forgotPasswordSubtitle'),
                     style: TextStyle(
-                      fontSize:14,
-                      color: Colors.grey,
+                      fontSize: 14,
+                      color: colorScheme.onSurfaceVariant,
                     ),
                     textAlign: TextAlign.center,
                   ),
-
-                  SizedBox(height: 32,),
-
+                  const SizedBox(height: 32),
                   Form(
                     key: _formKey,
                     child: Column(
                       children: [
                         AuthTextField(
-                            controller: _emailController,
-                            hint: 'Nhập email của bạn',
-                            icon: Icons.email_outlined,
-                            validator: Validators.validateEmail,
+                          controller: _emailController,
+                          hint: appLanguge.get('enterYourEmail'),
+                          icon: Icons.email_outlined,
+                          validator: (val) => Validators.validateEmail(val, appLanguge),
                         ),
-
-                        SizedBox(height: 32,),
-
+                        const SizedBox(height: 32),
                         AuthPrimaryButton(
-                            text: 'Gửi liên kết',
-                            isLoading: _isLoading,
-                            onPressed: _forgotPassword,
+                          text: appLanguge.get('sendLink'),
+                          isLoading: _isLoading,
+                          onPressed: _forgotPassword,
                         ),
-
-                        SizedBox(height: 24,),
-
+                        const SizedBox(height: 24),
                         GestureDetector(
-                          onTap: ()=>Navigator.pop(context),
+                          onTap: () => Navigator.pop(context),
                           child: Text(
-                            'Quay lại trang đăng nhập',
+                            appLanguge.get('backToLogin'),
                             style: TextStyle(
-                              color: Colors.blueAccent,
+                              color: colorScheme.primary,
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
-
                             ),
                           ),
                         ),
-
-                        SizedBox(height: 64,),
+                        const SizedBox(height: 64),
                       ],
                     ),
                   ),
-
-
                 ],
               ),
             ),

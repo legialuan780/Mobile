@@ -91,7 +91,8 @@ class AuthService {
     await _firebaseAuth.signOut();
 
     try {
-      await _googleSignIn.signOut();
+      // Bỏ await để tránh lỗi treo API Google trên một số máy ảo khi không đăng nhập bằng Google
+      _googleSignIn.signOut();
     } catch (_) {}
   }
 }
