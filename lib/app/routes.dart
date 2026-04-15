@@ -3,6 +3,8 @@ import 'package:Mobile/views/auth/forgot_password_view.dart';
 import 'package:Mobile/views/auth/login_view.dart';
 import 'package:Mobile/views/auth/register_view.dart';
 import 'package:Mobile/views/home/home.dart';
+import 'package:Mobile/views/settings/settings_view.dart';
+import 'package:Mobile/main.dart';
 import 'package:flutter/material.dart';
 
 class Routes{
@@ -16,8 +18,10 @@ class Routes{
         return MaterialPageRoute(builder: (_) => const ForgotPasswordView());
       case RouteNames.home:
         return MaterialPageRoute(builder: (_) => const HomeView());
+      case RouteNames.settings:
+        return MaterialPageRoute(builder: (_) => SettingsView(controller: settingsController));
       default:
-        return MaterialPageRoute(builder: (_) => const HomeView());
+        return MaterialPageRoute(builder: (_) => const LoginView());
     }
   }
 }

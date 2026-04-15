@@ -7,6 +7,7 @@ import '../../utils/snackbars.dart';
 import '../../widgets/auth/auth_text_field.dart';
 import '../../widgets/auth/auth_primary_button.dart';
 import '../../widgets/auth/social_login_button.dart';
+import '../../utils/app_language.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -43,14 +44,6 @@ class _LoginViewState extends State<LoginView> {
       );
 
       if (!mounted) return;
-
-      // if (!user.emailVerified) {
-      //   AppSnackbars.showError(
-      //     context,
-      //     'Email chưa được xác minh. Vui lòng kiểm tra email.',
-      //   );
-      //   return;
-      // }
 
       Navigator.pushReplacementNamed(context, RouteNames.home);
     } on FirebaseAuthException catch (e) {
@@ -93,15 +86,18 @@ class _LoginViewState extends State<LoginView> {
         return 'Email không hợp lệ.';
       case 'too-many-requests':
         return 'Thao tác quá nhiều lần. Thử lại sau.';
-        default:
+      default:
         return e.message ?? 'Đăng nhập thất bại.';
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final appLanguge = AppLanguge.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: colorScheme.surface,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -120,26 +116,26 @@ class _LoginViewState extends State<LoginView> {
                     child: Icon(
                       Icons.devices_outlined,
                       size: 100,
-                      color: const Color(0xFF0062FF).withOpacity(0.8),
+                      color: colorScheme.primary.withOpacity(0.8),
                     ),
                   ),
                   
                   const SizedBox(height: 32),
                   
-                  const Text(
-                    'Đăng nhập',
+                  Text(
+                    appLanguge.get('login'),
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF1E293B),
+                      color: colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    'Nhập email và mật khẩu của bạn để tiếp tục',
+                  Text(
+                    appLanguge.get('loginSubtitle'),
                     style: TextStyle(
                       fontSize: 14,
-                      color: Color(0xFF94A3B8),
+                      color: colorScheme.onSurfaceVariant,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -152,35 +148,34 @@ class _LoginViewState extends State<LoginView> {
                       children: [
                         AuthTextField(
                           controller: _emailController,
-                          hint: 'Tên đăng nhập hoặc Email',
+                          hint: appLanguge.get('usernameOrEmail'),
                           icon: Icons.person_outline,
-                          validator: Validators.validateEmailOrUsername,
+                          validator: (val) => Validators.validateEmailOrUsername(val, appLanguge),
                         ),
                         const SizedBox(height: 16),
                         AuthTextField(
                           controller: _passwordController,
-                          hint: 'Mật khẩu',
+                          hint: appLanguge.get('password'),
                           icon: Icons.lock_outline,
                           isPassword: true,
-                          validator: Validators.validatePassword,
+                          validator: (val) => Validators.validatePassword(val, appLanguge),
                         ),
                         
                         const SizedBox(height: 4),
                         
-                        // Forgot Password Link
                         Align(
                           alignment: Alignment.centerRight,
                           child: TextButton(
                             onPressed: () => Navigator.pushNamed(context, RouteNames.forgotPassword),
                             style: TextButton.styleFrom(
-                              foregroundColor: const Color(0xFF0062FF),
+                              foregroundColor: colorScheme.primary,
                               padding: EdgeInsets.zero,
                               minimumSize: const Size(50, 30),
                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             ),
-                            child: const Text(
-                              'Quên mật khẩu?',
-                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                            child: Text(
+                              appLanguge.get('forgotPasswordPrompt'),
+                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                             ),
                           ),
                         ),
@@ -188,50 +183,48 @@ class _LoginViewState extends State<LoginView> {
                         const SizedBox(height: 24),
                         
                         AuthPrimaryButton(
-                          text: 'Đăng nhập',
+                          text: appLanguge.get('login'),
                           isLoading: _isLoading,
                           onPressed: _login,
                         ),
                         
                         const SizedBox(height: 32),
                         
-                        // Divider
                         Row(
                           children: [
-                            const Expanded(child: Divider(color: Color(0xFFE2E8F0), thickness: 1)),
+                            Expanded(child: Divider(color: colorScheme.outlineVariant, thickness: 1)),
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 16),
                               child: Text(
-                                'Hoặc tiếp tục với',
+                                appLanguge.get('orContinueWith'),
                                 style: TextStyle(
-                                  color: const Color(0xFF94A3B8),
+                                  color: colorScheme.onSurfaceVariant,
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ),
-                            const Expanded(child: Divider(color: Color(0xFFE2E8F0), thickness: 1)),
+                            Expanded(child: Divider(color: colorScheme.outlineVariant, thickness: 1)),
                           ],
                         ),
                         
                         const SizedBox(height: 24),
                         
-                        // Social Login Buttons
                         Row(
                           children: [
                             SocialLoginButton(
-                              text: 'Google',
+                              text: appLanguge.get('google'),
                               iconPath: 'google',
                               isLoading: _isLoading,
                               onPressed: _loginWithGoogle,
                             ),
                             const SizedBox(width: 16),
                             SocialLoginButton(
-                              text: 'Facebook',
+                              text: appLanguge.get('facebook'),
                               iconPath: 'facebook',
                               isLoading: _isLoading,
                               onPressed: () {
-                                AppSnackbars.showError(context, 'Đăng nhập Facebook đang được phát triển');
+                                AppSnackbars.showError(context, appLanguge.get('facebookNotDeveloped'));
                               },
                             ),
                           ],
@@ -239,20 +232,19 @@ class _LoginViewState extends State<LoginView> {
                         
                         const SizedBox(height: 32),
                         
-                        // Bottom Register Link
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Text(
-                              'Chưa có tài khoản? ',
-                              style: TextStyle(color: Color(0xFF64748B), fontSize: 14),
+                            Text(
+                              appLanguge.get('noAccountPrompt'),
+                              style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14),
                             ),
                             GestureDetector(
                               onTap: () => Navigator.pushNamed(context, RouteNames.register),
-                              child: const Text(
-                                'Đăng ký ngay',
+                              child: Text(
+                                appLanguge.get('registerNow'),
                                 style: TextStyle(
-                                  color: Color(0xFF0062FF),
+                                  color: colorScheme.primary,
                                   fontWeight: FontWeight.w600,
                                   fontSize: 14,
                                 ),
